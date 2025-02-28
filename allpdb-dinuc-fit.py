@@ -3,7 +3,7 @@ import os
 import numpy as np
 import sys
 from seamless import Buffer
-from trinuc_fit import trinuc_fit
+from dinuc_fit import dinuc_fit
 from nefertiti.functions.parse_mmcif import atomic_dtype
 from crocodile.nuc import map_resname
 
@@ -53,10 +53,10 @@ for code in rna_struc_index:
             rna_codes.append(segcode)
 
 bases = ("A", "C", "G", "U")
-trinuc_sequences = ["".join(s) for s in itertools.product(bases, repeat=3)]
+dinuc_sequences = ["".join(s) for s in itertools.product(bases, repeat=2)]
 
 template_pdbs = {}
-for seq in trinuc_sequences:
+for seq in dinuc_sequences:
     filename = f"templates/{seq}-template-ppdb.npy"
     template = np.load(filename)
     if template.dtype != atomic_dtype:
@@ -65,11 +65,11 @@ for seq in trinuc_sequences:
 
 
 conformers = {}
-for seq in trinuc_sequences:
+for seq in dinuc_sequences:
     conformers0 = []
     for filename in (
-        f"library/trinuc-{seq}-0.5.npy",
-        f"library/trinuc-{seq}-0.5-extension.npy",
+        f"library/dinuc-{seq}-0.5.npy",
+        f"library/dinuc-{seq}-0.5-extension.npy",
     ):
         conformer = np.load(filename)
         if conformer.dtype not in (np.float32, np.float64):
@@ -89,31 +89,14 @@ print(len(chunk_indices))
 rna_codes = [rna_codes[n] for n in chunk_indices]
 rna_strucs = [rna_strucs[n] for n in chunk_indices]
 
-"""
-mask = []
-for n, struc in enumerate(rna_strucs):
-    code = rna_codes[n]
-    resnames = np.unique(struc["resname"])
-    ok = True
-    try:
-        for resname in resnames:
-            map_resname(resname, rna=True)
-    except KeyError:
-        ok = False
-    mask.append(ok)
-
-rna_codes = [code for n, code in enumerate(rna_codes) if mask[n]]
-rna_strucs = [struc for n, struc in enumerate(rna_strucs) if mask[n]]
-"""
-
 rmsd_margin = np.sqrt(
     3 * 0.25**2 + 0.5**2
 )  # translational and rotational error for crocodile sampling
-result = trinuc_fit(
+result = dinuc_fit(
     rna_strucs,
     rna_codes,
     template_pdbs=template_pdbs,
-    trinuc_conformer_library=conformers,
+    dinuc_conformer_library=conformers,
     rmsd_margin=rmsd_margin,
     rmsd_soft_max=1.5,
 )
@@ -121,4 +104,4 @@ result = trinuc_fit(
 # np.save(f"allpdb-overlap-rmsd-chunk-{chunk}.npy", result)
 print(result[0])
 buf = Buffer(result, celltype="mixed")
-buf.save(f"allpdb-trinuc-fit-chunk-{chunk}.mixed")
+buf.save(f"allpdb-dinuc-fit-chunk-{chunk}.mixed")

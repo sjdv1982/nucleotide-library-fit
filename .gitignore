@@ -1,3 +1,4 @@
+*.pyc
 input/allpdb-rna-aareduce.mixed
 input/allpdb-segments.txt
 library/dinuc-??-?.?.npy
@@ -10,3 +11,4 @@ library/trinuc-???-?.?-extension.npy
 library/trinuc-???-?.?-extension.origin.txt
 library/trinuc-???-?.?-replacement.npy
 library/trinuc-???-?.?-replacement.txt
+allpdb-*-fit-chunk*.mixed
