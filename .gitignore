@@ -12,3 +12,5 @@ library/trinuc-???-?.?-extension.origin.txt
 library/trinuc-???-?.?-replacement.npy
 library/trinuc-???-?.?-replacement.txt
 allpdb-*-fit-chunk*.mixed
+1b7f-test/lib-*.npy
+1b7f-test/*.grid
