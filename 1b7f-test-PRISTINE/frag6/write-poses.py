@@ -1,1 +1,0 @@
-../write-poses.py

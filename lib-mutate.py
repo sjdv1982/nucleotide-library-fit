@@ -1,3 +1,4 @@
+import shutil
 import numpy as np
 from mutate import mutate
 import itertools
@@ -10,7 +11,7 @@ trinuc_sequences = ["".join(s) for s in itertools.product(bases, repeat=3)]
 mut_coor = {}
 mut_ori = {}
 
-for lib, seqs in (("trinuc", trinuc_sequences), ("dinuc", dinuc_sequences)):
+for lib, seqs in (("dinuc", dinuc_sequences), ("trinuc", trinuc_sequences)):
     seqs_map = {}
     for seq in seqs:
         seq0 = seq.replace("G", "A").replace("U", "C")
@@ -19,9 +20,21 @@ for lib, seqs in (("trinuc", trinuc_sequences), ("dinuc", dinuc_sequences)):
         if seq0 not in seqs_map:
             seqs_map[seq0] = []
         seqs_map[seq0].append(seq)
+
     for seq0 in seqs_map:
         for precision in (0.5, 1.0):
-            for ext in ("", "-extension"):
+            for seq in seqs_map[seq0]:
+                src = f"library/{lib}-{seq0}-{precision}-replacement.txt"
+                dst = f"library/{lib}-{seq}-{precision}-replacement.txt"
+                shutil.copy(src, dst)
+                print(src, dst)
+
+                src = f"library/{lib}-{seq0}-{precision}-extension.origin.txt"
+                dst = f"library/{lib}-{seq}-{precision}-extension.origin.txt"
+                shutil.copy(src, dst)
+                print(src, dst)
+
+            for ext in ("", "-extension", "-replacement"):
                 pattern = "library/{lib}-{seq}-{precision}{ext}.npy"
                 coorf = pattern.format(lib=lib, seq=seq0, ext=ext, precision=precision)
                 coor = np.load(coorf)

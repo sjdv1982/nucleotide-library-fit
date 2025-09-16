@@ -1,4 +1,13 @@
+import sys
 import numpy as np
+
+from crocodile.dinuc.from_ppdb import from_ppdb
+from crocodile.trinuc.best_fit import best_fit
+
+
+def err(msg):
+    print(msg, file=sys.stderr)
+    exit(1)
 
 
 def dinuc_fit(
@@ -10,10 +19,6 @@ def dinuc_fit(
     rmsd_margin: float,
     rmsd_soft_max: float
 ):
-    # TODO: include crocodile/nefertiti as Seamless modules
-    from crocodile.dinuc.from_ppdb import from_ppdb
-    from crocodile.trinuc.best_fit import best_fit
-
     stage1 = {}
     for strucnr, struc in enumerate(strucs):
         code = codes[strucnr]

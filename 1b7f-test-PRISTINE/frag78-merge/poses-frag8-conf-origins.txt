@@ -1,1 +1,0 @@
-../frag8-bwd/poses-filtered-conf-origins.txt
