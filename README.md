@@ -50,6 +50,12 @@ pairstats.py
   We the build a list of antipairs, which are pairs that are not observed, but that *should* have been observed (NP < 0.01)
   These are stored in pairstats-{pairseq}-antipairs.txt
 
+collect-antipairs.py
+    This writes antipair multi-model PDB files as:
+    - The antipair as two dinucleotide pairs (resid 1,2,100,101) => antipairs-XXX-nonmerged.pdb
+    - The antipair as trinucleotide, with the common nucleotide averaged out => antipairs-XXX.pdb
+    - The same, but with the middle nucleotide aligned onto a reference => antipairs-XXX-aligned.pdb
+
 ## Synopsis of the pair analysis
 
 Here, we analyze the relation between dinucleotide and trinucleotide fragments. At 0.5 A precision, the PDB is 78 % complete; in other words, the primary 0.5A trinucleotide library covers 78 % of the fragments within 0.5. An additional 12 % of the fragments is within 1A, i.e. a total of 90 %. It turns out that this primary library can be described very well (>99 %, even within 0.5A) as *pairs* of primary (i.e. seen in more than one PDB) 0.5A *dinucleotide* fragments. These dinucleotide pairs are clash-free and have an excellent overlap RMSD (TODO: compatibility RMSD ??) RMSD (90 % < 0.5A, 98.4 % < 0.7A). In conclusion, *primary trinucleotides (that cover 90 % of the cases) can be synthetically generated from superimposed pairs of primary dinucleotides*. It is then observed that the pairing is *very sparse*: among all potential pairs of primary dinucleotides, only about 1 in 7000 are actually observed. Yet, many potential pairs are *plausible*: in terms of compatibility RMSD, 1 out of 18 pairings are under 0.5A, 1 out of 7 are under 0.7A, and internal clashes are essentially absent among all of those. One could ascribe this sparsity to a simple lack of observations, but statistical analysis shows otherwise: a number of pairings between dinucleotide fragments that are common and plausible are nevertheless not observed, and this is shown to be highly statistically significant. (TODO: analysis to see if it is purely explained by higher-order motifs such as hexanucleotides, which you would not expect to see more than once in a random model).  
