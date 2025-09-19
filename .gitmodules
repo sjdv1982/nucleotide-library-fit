@@ -1,3 +1,6 @@
 [submodule "library"]
 	path = library
 	url = https://github.com/sjdv1982/nucleotide-library
+[submodule "templates"]
+	path = templates
+	url = https://github.com/sjdv1982/nucleotide-fragment-templates

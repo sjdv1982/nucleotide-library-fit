@@ -5,3 +5,4 @@ input/allpdb-segments.txt
 input/*
 !input/.gitkeep
 *.job
+crmsd_matrix_???.npy
