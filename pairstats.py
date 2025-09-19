@@ -83,19 +83,24 @@ all_h1 = {}
 all_h2 = {}
 all_proba_weights = {}
 
+counts0 = counts
+counts = {}
+for m in counts0:
+    curr_counts = np.zeros(max(counts0[m].keys()))
+    counts[m] = curr_counts
+    for k, v in counts0[m].items():
+        assert k > 0
+        curr_counts[k - 1] = v
+    curr_counts /= curr_counts.sum()
+    np.savetxt(f"freq-{m}.txt", curr_counts, fmt="%.7f")
+
 for pair_motif in pair_motifs:
     m1 = pair_motif[:2]
     m2 = pair_motif[-2:]
 
     crmsd = np.load(f"crmsd_matrix_{pair_motif}.npy")
-    curr_counts1 = np.zeros(max(counts[m1].keys()))
-    for k, v in counts[m1].items():
-        assert k > 0
-        curr_counts1[k - 1] = v
-    curr_counts2 = np.zeros(max(counts[m2].keys()))
-    for k, v in counts[m2].items():
-        assert k > 0
-        curr_counts2[k - 1] = v
+    curr_counts1 = counts[m1]
+    curr_counts2 = counts[m2]
 
     curr_pcountweights = np.zeros_like(crmsd)
     for (c1, c2), v in pcounts[m1 + m2[1]].items():

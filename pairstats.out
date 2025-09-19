@@ -47,34 +47,34 @@
 9999.00 1.07
 
 AAA
-Expected to be missed (among those with <1 % chance to miss): 1.1734423704761625
+Expected to be missed (among those with <1 % chance to miss): 1.173442370476227
 Observed to be missed (among those with <1 % chance to miss): 336
 
 AAC
-Expected to be missed (among those with <1 % chance to miss): 0.9689580367545398
+Expected to be missed (among those with <1 % chance to miss): 0.9689580367545013
 Observed to be missed (among those with <1 % chance to miss): 269
 
 ACA
-Expected to be missed (among those with <1 % chance to miss): 0.7553172175838843
+Expected to be missed (among those with <1 % chance to miss): 0.7553172175839563
 Observed to be missed (among those with <1 % chance to miss): 204
 
 ACC
-Expected to be missed (among those with <1 % chance to miss): 0.8298603830053571
+Expected to be missed (among those with <1 % chance to miss): 0.8298603830054119
 Observed to be missed (among those with <1 % chance to miss): 163
 
 CAA
-Expected to be missed (among those with <1 % chance to miss): 1.0447297166004246
+Expected to be missed (among those with <1 % chance to miss): 1.0447297166005343
 Observed to be missed (among those with <1 % chance to miss): 267
 
 CAC
-Expected to be missed (among those with <1 % chance to miss): 0.7363150984000661
+Expected to be missed (among those with <1 % chance to miss): 0.7363150984000659
 Observed to be missed (among those with <1 % chance to miss): 167
 
 CCA
-Expected to be missed (among those with <1 % chance to miss): 0.8555185227493965
+Expected to be missed (among those with <1 % chance to miss): 0.8555185227494088
 Observed to be missed (among those with <1 % chance to miss): 157
 
 CCC
-Expected to be missed (among those with <1 % chance to miss): 0.9082699744956846
+Expected to be missed (among those with <1 % chance to miss): 0.9082699744956674
 Observed to be missed (among those with <1 % chance to miss): 76
 
