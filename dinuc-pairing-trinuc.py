@@ -6,10 +6,10 @@ Creates:
 1/ dinuc-trinuc-pairs/{trinuc_seq}-pairing.txt
 For each trinucleotide, all corresponding dinucleotide pairings:
     - Format is ((conf1, conf2), cRMSD) , where conf1 and conf2 are indices STARTING FROM ZERO
-    - conf1 or conf2 must fit within 0.5A.
+    - conf1 and conf2 must fit within 0.5A.
         If there is no such conf, -1 is written for the conf and for the cRMSD
     - The pair (with conf1 and conf2 under 0.5A) with the lowest cRMSD is always written
-    - All such pairs with cRMSD<0.5A are written
+    - All such pairs with cRMSD<0.7A are written
 
 2/ dinuc-trinuc-pairs/{trinuc_seq}-pairlist.txt
 Contains a list of all pairs with INDICES STARTING FROM ONE
@@ -44,7 +44,7 @@ dinuc_sequences = ["".join(s) for s in itertools.product(bases, repeat=2)]
 template_pdbs = {}
 templates_res_sizes = {}
 for seq in trinuc_sequences + dinuc_sequences:
-    filename = f"templates/{seq}-template-ppdb.npy"
+    filename = f"templates/{seq}-ppdb.npy"
     template = np.load(filename)
     if template.dtype != atomic_dtype:
         err(f"Template '{filename}' does not contain a parsed PDB")
@@ -62,7 +62,7 @@ for seq in trinuc_sequences + dinuc_sequences:
 
 dinuc_lib = {}  # read only 0.5A primary library
 for seq in dinuc_sequences:
-    filename = f"library/dinuc-{seq}-0.5.npy"
+    filename = f"library/library/dinuc-{seq}-0.5.npy"
     lib = np.load(filename)
     dinuc_lib[seq] = lib
 
@@ -72,7 +72,7 @@ diseq1, diseq2 = seq[:2], seq[1:]
 assert templates_res_sizes[diseq1] == res_sizes[:2]
 assert templates_res_sizes[diseq2] == res_sizes[1:]
 
-filename = f"library/trinuc-{seq}-0.5.npy"  # read only 0.5A primary library
+filename = f"library/library/trinuc-{seq}-0.5.npy"  # read only 0.5A primary library
 lib = np.load(filename)
 prelib = lib[:, : sum(res_sizes[:2])]
 postlib = lib[:, -sum(res_sizes[1:]) :]
@@ -108,12 +108,12 @@ for confnr in trange(0, len(lib)):
             coor2 = middle_dilib2[c2]
             crmsd = superimpose(coor1, coor2)[1]
             if min_crmsd is None or crmsd < min_crmsd:
-                if min_pair is not None and min_crmsd < 0.5:
+                if min_pair is not None and min_crmsd < 0.7:
                     cnr1, cnr2 = min_pair
                     curr_pairs.append(((cand1[cnr1], cand2[cnr2]), min_crmsd))
                 min_crmsd = crmsd
                 min_pair = cnr1, cnr2
-            elif crmsd < 0.5:
+            elif crmsd < 0.7:
                 curr_pairs.append(((cand1[cnr1], cand2[cnr2]), crmsd))
     cnr1, cnr2 = min_pair
     curr_pairs.append(((cand1[cnr1], cand2[cnr2]), min_crmsd))
@@ -137,7 +137,7 @@ for p in pairs:
     if ok:
         n_good_crmsd += 1
 print(
-    "Primary trinucleotides with a pair of <0.5A dinucleotides: {:.1f} %".format(
+    "Primary trinucleotides with a pair of <0.5A primary dinucleotides: {:.1f} %".format(
         n_fitting_pairs / len(lib) * 100
     )
 )
