@@ -41,7 +41,6 @@ for pos in is_dinuc0:
     is_dinuc.append(pos)
 is_dinuc = np.array(is_dinuc)
 
-
 pos_ori = [nucsegnames[pos][:4] for pos in is_dinuc]
 
 lib = np.load(f"library/library/dinuc-{motif}-0.5.npy")
@@ -124,6 +123,7 @@ improv_mask = best_rmsd_ext < best_rmsd[poor_fit_posnr]
 posnr_improv = poor_fit_posnr[improv_mask]
 best_conf[posnr_improv] = best_conf_ext[improv_mask] + lib_offset
 best_rmsd[posnr_improv] = best_rmsd_ext[improv_mask]
+replacement_mask[posnr_improv] = 0
 
 print("Improved fit from extension library:", improv_mask.sum())
 

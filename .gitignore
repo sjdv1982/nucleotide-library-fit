@@ -6,3 +6,9 @@ input/*
 !input/.gitkeep
 *.job
 crmsd_matrix_???.npy
+ecrmsd_matrix_???.npy
+*.gz
+*.ermsd
+allpdb-rna-fit-dinuc-*-pairs.npy
+allpdb-rna-fit-dinuc-*-rotamers.npy
+allpdb-rna-fit-dinuc-*.txt

@@ -19,7 +19,9 @@ print(dinuc1, dinuc2)
 
 libs = []
 for dinuc in (dinuc1, dinuc2):
-    lib = np.load(f"library/library/dinuc-{dinuc}-0.5.npy")
+    lib0 = np.load(f"library/library/dinuc-{dinuc}-0.5.npy")
+    lib_ext = np.load(f"library/library/dinuc-{dinuc}-0.5-extension.npy")
+    lib = np.concatenate((lib0, lib_ext)).astype(float)
     assert lib.shape[1] == baselen[dinuc[0]] + baselen[dinuc[1]]
     libs.append(lib)
 
