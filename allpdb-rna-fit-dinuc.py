@@ -26,21 +26,7 @@ nucseg = np.searchsorted(segstart, nucstart, side="right") - 1
 all_segnames = list(data[0].keys())
 nucsegnames = [all_segnames[i] for i in nucseg]
 
-is_nuc1 = np.array([c == motif[0] for c in seq], bool)
-is_nuc2 = np.array([c == motif[1] for c in seq], bool)
-same_seg = np.equal(nucseg[:-1], nucseg[1:])
-
-is_dinuc0 = np.where(is_nuc1[:-1] & is_nuc2[1:] & same_seg)[0]
-is_dinuc = []
-for pos in is_dinuc0:
-    try:
-        start, end = nucstart[pos : pos + 3 : 2]
-    except ValueError:
-        # print("ERR", pos)
-        continue
-    is_dinuc.append(pos)
-is_dinuc = np.array(is_dinuc)
-
+is_dinuc = np.load(f"allpdb-rna-detect-dinuc-{motif}.npy")
 pos_ori = [nucsegnames[pos][:4] for pos in is_dinuc]
 
 lib = np.load(f"library/library/dinuc-{motif}-0.5.npy")

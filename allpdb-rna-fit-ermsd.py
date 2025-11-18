@@ -35,9 +35,7 @@ lib = np.concatenate((lib0, lib_ext))
 confs = lib[fit_conf]
 to_replace = np.where(fit_is_replacement)[0]
 inds = fit_conf[to_replace]
-confs[to_replace] = lib_replacement[
-    inds
-]  # TODO: Re-run allpdb-rna-fit-dinuc.py when switching to real data
+confs[to_replace] = lib_replacement[inds]
 
 all_ermsd = []
 
