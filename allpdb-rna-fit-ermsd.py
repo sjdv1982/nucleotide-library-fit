@@ -25,12 +25,17 @@ fit_rmsd = fits[:, 2]
 fit_is_replacement = fits[:, 3].astype(bool)
 
 lib0 = np.load(f"library/library/dinuc-{motif}-0.5.npy")
-lib_replacement = np.load(f"library/library/dinuc-{motif}-0.5-replacement.npy")
-assert len(lib_replacement) == len(lib0)
 lib_ext = np.load(f"library/library/dinuc-{motif}-0.5-extension.npy")
 
 lib_offset = len(lib0)
 lib = np.concatenate((lib0, lib_ext))
+# Re-center the library; this normally necessary for mutated libraries
+lib -= lib.mean(axis=1)[:, None, :]
+
+lib_replacement = np.load(f"library/library/dinuc-{motif}-0.5-replacement.npy")
+# Re-center the library
+lib_replacement -= lib_replacement.mean(axis=1)[:, None, :]
+assert len(lib_replacement) == len(lib0)
 
 confs = lib[fit_conf]
 to_replace = np.where(fit_is_replacement)[0]
