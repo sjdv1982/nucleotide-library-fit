@@ -95,6 +95,8 @@ order = np.argsort(frag_indices)
 frag_indices = np.array(frag_indices)[order]
 fits = fits[order]
 np.save("allpdb-rna-fit.npy", fits)
+np.save("allpdb-rna-fit-indices.npy", frag_indices)
+
 
 pair_dtype = np.dtype(
     [
