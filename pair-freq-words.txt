@@ -1,0 +1,117 @@
+(array(['AA', 'AC', 'AG', 'AU', 'CA', 'CC', 'CG', 'CU', 'GA', 'GC', 'GG',
+       'GU', 'UA', 'UC', 'UG', 'UU'], dtype='<U2'), array([30771, 23617, 35206, 20288, 27738, 46089, 38125, 24133, 32099,
+       37886, 45211, 33336, 21122, 28025, 28871, 23248]))
+(array(['AA', 'AC', 'CA', 'CC'], dtype='<U2'), array([143287, 115127, 115856, 121495]))
+Lib AA, class 0, nconfs 6965 (70.6 %), nfrags 16316 (11.39) %, 0.0 <= counts < 5.0
+Lib AA, class 1, nconfs 2755 (27.9 %), nfrags 39757 (27.75) %, 5.0 <= counts < 97.0
+Lib AA, class 2, nconfs 119 (1.2 %), nfrags 27644 (19.29) %, 97.0 <= counts < 493.0
+Lib AA, class 3, nconfs 28 (0.3 %), nfrags 27785 (19.39) %, 493.0 <= counts < 7943.0
+Lib AA, class 4, nconfs 2 (0.0 %), nfrags 31785 (22.18) %, 7943.0 <= counts < inf
+
+Lib AC, class 0, nconfs 5543 (71.6 %), nfrags 12788 (11.11) %, 0.0 <= counts < 5.0
+Lib AC, class 1, nconfs 2091 (27.0 %), nfrags 29973 (26.03) %, 5.0 <= counts < 112.0
+Lib AC, class 2, nconfs 89 (1.2 %), nfrags 21287 (18.49) %, 112.0 <= counts < 559.5
+Lib AC, class 3, nconfs 15 (0.2 %), nfrags 20946 (18.19) %, 559.5 <= counts < 29758.0
+Lib AC, class 4, nconfs 1 (0.0 %), nfrags 30133 (26.17) %, 29758.0 <= counts < inf
+
+Lib CA, class 0, nconfs 6089 (72.1 %), nfrags 14200 (12.26) %, 0.0 <= counts < 5.0
+Lib CA, class 1, nconfs 2226 (26.4 %), nfrags 30108 (25.99) %, 5.0 <= counts < 90.0
+Lib CA, class 2, nconfs 104 (1.2 %), nfrags 21509 (18.57) %, 90.0 <= counts < 498.5
+Lib CA, class 3, nconfs 20 (0.2 %), nfrags 21172 (18.27) %, 498.5 <= counts < 28559.0
+Lib CA, class 4, nconfs 1 (0.0 %), nfrags 28867 (24.92) %, 28559.0 <= counts < inf
+
+Lib CC, class 0, nconfs 6448 (71.5 %), nfrags 15040 (12.38) %, 0.0 <= counts < 5.0
+Lib CC, class 1, nconfs 2398 (26.6 %), nfrags 29108 (23.96) %, 5.0 <= counts < 65.5
+Lib CC, class 2, nconfs 141 (1.6 %), nfrags 21485 (17.68) %, 65.5 <= counts < 422.5
+Lib CC, class 3, nconfs 25 (0.3 %), nfrags 21619 (17.79) %, 422.5 <= counts < 33852.0
+Lib CC, class 4, nconfs 1 (0.0 %), nfrags 34243 (28.18) %, 33852.0 <= counts < inf
+
+Word 00, observed 26395 expected 6036.0 propensity 4.373
+Word 01, observed 19844 expected 14030.0 propensity 1.414
+Word 02, observed 4601 expected 10121.2 propensity 0.455
+Word 03, observed 2290 expected 10224.5 propensity 0.224
+Word 04, observed 1294 expected 14012.3 propensity 0.092
+Word 10, observed 19248 expected 13780.2 propensity 1.397
+Word 11, observed 57677 expected 32144.3 propensity 1.794
+Word 12, observed 22582 expected 23172.6 propensity 0.975
+Word 13, observed 14410 expected 23410.7 propensity 0.616
+Word 14, observed 10577 expected 31986.2 propensity 0.331
+Word 20, observed 4010 expected 9963.3 propensity 0.402
+Word 21, observed 21296 expected 23210.1 propensity 0.918
+Word 22, observed 25336 expected 16736.4 propensity 1.514
+Word 23, observed 21840 expected 16908.0 propensity 1.292
+Word 24, observed 17463 expected 23127.2 propensity 0.755
+Word 30, observed 2158 expected 9967.9 propensity 0.216
+Word 31, observed 13561 expected 23224.0 propensity 0.584
+Word 32, observed 19552 expected 16746.0 propensity 1.168
+Word 33, observed 25767 expected 16917.6 propensity 1.523
+Word 34, observed 28956 expected 23138.4 propensity 1.251
+Word 40, observed 1607 expected 13670.5 propensity 0.118
+Word 41, observed 11825 expected 31594.5 propensity 0.374
+Word 42, observed 17523 expected 22817.9 propensity 0.768
+Word 43, observed 26202 expected 23048.2 propensity 1.137
+Word 44, observed 65719 expected 31744.8 propensity 2.070
+
+CHECK (3x same number) 481733 481733 481733
+
+Length 3 analysis: 125 words
+468094
+468094 468093.9999999999
+0 Word 010 obs 5088 expected 2912 propensity 1.75
+1 Word 020 obs 371 expected 197 propensity 1.88
+2 Word 022 obs 960 expected 1251 propensity 0.77
+3 Word 024 obs 1217 expected 868 propensity 1.40
+4 Word 030 obs 91 expected 53 propensity 1.71
+5 Word 031 obs 464 expected 335 propensity 1.38
+6 Word 040 obs 45 expected 16 propensity 2.77
+7 Word 041 obs 177 expected 121 propensity 1.46
+8 Word 130 obs 442 expected 337 propensity 1.31
+9 Word 140 obs 202 expected 135 propensity 1.50
+10 Word 141 obs 1406 expected 1005 propensity 1.40
+11 Word 204 obs 64 expected 89 propensity 0.72
+12 Word 303 obs 62 expected 86 propensity 0.72
+13 Word 402 obs 93 expected 126 propensity 0.74
+14 Word 403 obs 23 expected 63 propensity 0.36
+15 Word 414 obs 543 expected 976 propensity 0.56
+16 Word 424 obs 1932 expected 3345 propensity 0.58
+
+class vector, averaged over the libraries and pair positions
+class 0, raw value: 0.112, stdev: 0.005
+class 1, raw value: 0.257, stdev: 0.014
+class 2, raw value: 0.186, stdev: 0.005
+class 3, raw value: 0.187, stdev: 0.006
+class 4, raw value: 0.258, stdev: 0.022
+Raw sum: 1.0
+
+Store 2-word propensity matrix
+
+Store 3-word propensity matrix
+
+Write out fragment classes
+
+Repeat analysis after filtering for contacting fragments
+
+Lib AA, class 0, nconfs 6965 (77.3 %), nfrags 8893 (11.30) %
+Lib AA, class 1, nconfs 2755 (30.6 %), nfrags 20949 (26.61) %
+Lib AA, class 2, nconfs 119 (1.3 %), nfrags 14499 (18.42) %
+Lib AA, class 3, nconfs 28 (0.3 %), nfrags 16027 (20.36) %
+Lib AA, class 4, nconfs 2 (0.0 %), nfrags 18347 (23.31) %
+
+Lib AC, class 0, nconfs 5543 (61.5 %), nfrags 6815 (10.90) %
+Lib AC, class 1, nconfs 2091 (23.2 %), nfrags 15348 (24.55) %
+Lib AC, class 2, nconfs 89 (1.0 %), nfrags 11639 (18.62) %
+Lib AC, class 3, nconfs 15 (0.2 %), nfrags 11276 (18.04) %
+Lib AC, class 4, nconfs 1 (0.0 %), nfrags 17438 (27.89) %
+
+Lib CA, class 0, nconfs 6089 (67.6 %), nfrags 7732 (12.05) %
+Lib CA, class 1, nconfs 2226 (24.7 %), nfrags 16170 (25.20) %
+Lib CA, class 2, nconfs 104 (1.2 %), nfrags 12107 (18.87) %
+Lib CA, class 3, nconfs 20 (0.2 %), nfrags 11538 (17.98) %
+Lib CA, class 4, nconfs 1 (0.0 %), nfrags 16627 (25.91) %
+
+Lib CC, class 0, nconfs 6448 (71.5 %), nfrags 8345 (12.97) %
+Lib CC, class 1, nconfs 2398 (26.6 %), nfrags 14986 (23.29) %
+Lib CC, class 2, nconfs 141 (1.6 %), nfrags 11460 (17.81) %
+Lib CC, class 3, nconfs 25 (0.3 %), nfrags 12380 (19.24) %
+Lib CC, class 4, nconfs 1 (0.0 %), nfrags 17176 (26.69) %
+
