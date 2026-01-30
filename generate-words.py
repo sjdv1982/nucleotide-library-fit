@@ -151,10 +151,11 @@ def split(word, size, level):
     if len(word) == 1:
         letter = word[0]
         vals = class_matrix[letter]
-        mins = levels[level][0][letter]
-        maxs = levels[level][1][letter]
+        mins = levels[level][0][letter, :]
+        maxs = levels[level][1][letter, :]
         result = vals, mins, maxs
     elif len(word) == 2:
+        # class_triple = class_matrix[:, :, None] * triple0
         vals = class_triple[word[0], word[1]]
         prev_mins, prev_maxs = levels[level - 1]
         mins3d = prev_mins[:, :, None] * triple0
@@ -167,10 +168,27 @@ def split(word, size, level):
         result = vals, mins, maxs
     else:
         deep = len(word) - 1
-        letter1, letter2 = words[-2:]
-        vals = class_matrix[letter2] * size
-        mins = levels[level - deep][0][letter2] * size
-        maxs = levels[level - deep][1][letter2] * size
+        letter1, letter2 = word[-2:]
+
+        freq = class_matrix[letter1, letter2]
+        # class_triple = class_matrix[:, :, None] * triple0
+        vals = class_triple[letter1, letter2] * size / freq
+
+        prev_mins, prev_maxs = levels[level - deep]
+        mins3d = prev_mins[:, :, None] * triple0
+        maxs3d = prev_maxs[:, :, None] * triple0
+        mins = mins3d[letter1, letter2] * size / freq
+        maxs = maxs3d[letter1, letter2] * size / freq
+        if level - deep == 2:
+            assert np.allclose(mins, maxs), (word, size, 100 * mins, 100 * maxs)
+            assert np.allclose(vals, mins), (
+                word,
+                size,
+                100 * vals,
+                100 * mins,
+                vals / mins,
+                triple0[letter1, letter2],
+            )
         result = vals, mins, maxs
 
     return Tree(level, words, result[0], result[1], result[2])
@@ -203,7 +221,7 @@ class Tree:
             self.words, self.sizes, self.mins, self.maxs
         ):
             w = "".join([str(i) for i in word])
-            print(f"{w} size {100*size:.4f} min {100*ccmin:.4f} max {100*ccmax:.4f}")
+            print(f"{w} size {100*size:.4f} min {100*ccmin:.4e} max {100*ccmax:.4f}")
         print()
 
     def _pop(self, index):
@@ -229,6 +247,7 @@ class Tree:
         )
         assert max(new_tree.maxs) == self.maxs[to_split], (
             split_word,
+            [100 * v for v in new_tree.sizes],  # ==maxs
             100 * max(new_tree.maxs),
             100 * self.maxs[to_split],
         )
@@ -377,5 +396,5 @@ def prune(level):
 print("*" * 70)
 print("Level 3")
 prune(3)
-# print("Level 4")
-# prune(4)
+print("Level 4")
+prune(4)
