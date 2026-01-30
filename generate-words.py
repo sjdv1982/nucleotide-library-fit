@@ -1,5 +1,8 @@
+import sys
 import numpy as np
 
+
+THRESHOLD = 0.10
 
 class_vector = np.load("class_vector.npy")
 NCLASSES = len(class_vector)
@@ -7,6 +10,16 @@ prop2d = np.load("propensity_2d.npy")
 assert prop2d.shape == (NCLASSES, NCLASSES)
 prop3d = np.load("propensity_3d.npy")
 assert prop3d.shape == (NCLASSES, NCLASSES, NCLASSES)
+
+conf_classes = []
+for lib in ("AA", "AC", "CA", "CC"):
+    conf_classes.append(np.load(f"conformer-classes-{lib}.npy"))
+conf_classes = np.concatenate(conf_classes)
+classes0, class_counts = np.unique(conf_classes, return_counts=True)
+assert len(classes0) == NCLASSES and np.all(np.equal(classes0, np.arange(NCLASSES)))
+conf_class_frac = class_counts / len(conf_classes)
+print("Conformer class fractions:", conf_class_frac.tolist())
+log_conf_class_frac = np.log(conf_class_frac)
 
 
 def gather_from_triple(triple_min, triple_max):
@@ -128,273 +141,127 @@ print(
 # We privilege the FORWARD direction for transition:
 #   the class matrix multiplied with the FORWARD triple matrix, summed over the 3rd axis => class matrix
 
-print(2, 100 * class_matrix)
+log_class_matrix = np.log(class_matrix)
+log_triple0 = np.log(triple0)
 
-levels = {2: (class_matrix, class_matrix)}
+try:
+    from scipy.special import logcumsumexp
+except ImportError:
+
+    def logcumsumexp(logx):
+        m = np.maximum.accumulate(logx)
+        return m + np.log(np.cumsum(np.exp(logx - m)))
+
+
+try:
+    from scipy.special import logsumexp
+except ImportError:
+
+    def logsumexp(logx):
+        return np.max(logx) + np.log(np.sum(np.exp(logx - np.max(logx))))
+
+
+def get_log_frac(log_class_frac, mask):
+    f = log_class_frac.reshape(-1)
+    m = mask.reshape(-1)
+    return logsumexp(f[m])
+
+
+def prune(log_matrix):
+    level = log_matrix.ndim
+    nr_rare = log_conf_class_frac  # test
+    nr_rare_matrix = nr_rare
+    for _ in range(level):
+        nr_rare_matrix = nr_rare_matrix[..., None] + nr_rare.reshape(
+            (1,) * (level - 1) + (-1,)
+        )
+    nr_rare_matrix_flat = nr_rare_matrix.reshape(-1).astype(np.float32)
+    log_matrix_flat = log_matrix.reshape(-1).astype(np.float32)
+
+    print("sort1", file=sys.stderr)
+    sorting1 = log_matrix_flat.argsort().astype(np.int32)
+    print("sort2", file=sys.stderr)
+    sorting2 = (-nr_rare_matrix_flat[sorting1]).argsort(stable=True).astype(np.int32)
+    sorting = sorting1[sorting2]
+    del sorting1, sorting2
+    print("sorted", file=sys.stderr)
+
+    log_sorted = log_matrix_flat[sorting]
+    cumsum_log_sorted = logcumsumexp(log_sorted)
+    pos = np.searchsorted(cumsum_log_sorted, np.log(THRESHOLD))
+    if pos == 0:
+        print(f"Level {level}, no pruning")
+    mask = np.zeros(len(log_matrix_flat), bool)
+    mask[sorting[pos:]] = 1
+    return pos, mask.reshape(log_matrix.shape)
+
+
+log_conf_class_frac_2d = log_conf_class_frac[:, None] + log_conf_class_frac[None, :]
 
 print()
-# for level in range(3, 10):
-for level in range(3, 5):  ###
-    mins0, maxs0 = levels[level - 1]
-    mins = (mins0[:, :, None] * triple0).min(axis=2)
-    maxs = (maxs0[:, :, None] * triple0).max(axis=2)
-    print(level)
-    print(100 * mins)
-    print(100 * maxs)
-    print()
-    levels[level] = mins, maxs
+pruned, mask = prune(log_class_matrix)
+level = 2
+print("Level", level)
+print(
+    f"Pruned combinations: {pruned}/{len(log_class_matrix.reshape(-1))} {100*pruned/len(log_class_matrix.reshape(-1)):.1f} %"
+)
+print(
+    "Fragment pruning (close to threshold)",
+    100 * np.exp(get_log_frac(log_class_matrix, mask)),
+)
+log_conf_frac = get_log_frac(log_conf_class_frac_2d, mask)
+print(
+    f"Log conformation pruning {log_conf_frac:.5f}, per level {log_conf_frac/level:.5f}"
+)
+print(
+    f"Conformation pruning {np.exp(log_conf_frac):.5f}, per level {np.exp(log_conf_frac/level):.5f}"
+)
+print()
 
+log_matrix = log_class_matrix
+log_conf_class_frac_nd = log_conf_class_frac_2d
+for level in range(3, 12 + 1):
+    log_matrix = log_matrix[..., :, :, None] + log_triple0
 
-def split(word, size, level):
-    words = [word + (i,) for i in range(NCLASSES)]
+    log_conf_class_frac_nd = log_conf_class_frac_nd[
+        ..., None
+    ] + log_conf_class_frac.reshape((1,) * (level - 1) + (-1,))
+    pruned, mask = prune(log_matrix)
 
-    if len(word) == 1:
-        letter = word[0]
-        vals = class_matrix[letter]
-        mins = levels[level][0][letter, :]
-        maxs = levels[level][1][letter, :]
-        result = vals, mins, maxs
-    elif len(word) == 2:
-        # class_triple = class_matrix[:, :, None] * triple0
-        vals = class_triple[word[0], word[1]]
-        prev_mins, prev_maxs = levels[level - 1]
-        mins3d = prev_mins[:, :, None] * triple0
-        maxs3d = prev_maxs[:, :, None] * triple0
-        mins = mins3d[word[0], word[1]]
-        maxs = maxs3d[word[0], word[1]]
-        if level == 3:
-            assert np.allclose(mins, maxs)
-            assert np.allclose(vals, mins)
-        result = vals, mins, maxs
-    else:
-        deep = len(word) - 1
-        letter1, letter2 = word[-2:]
-
-        freq = class_matrix[letter1, letter2]
-        # class_triple = class_matrix[:, :, None] * triple0
-        vals = class_triple[letter1, letter2] * size / freq
-
-        prev_mins, prev_maxs = levels[level - deep]
-        mins3d = prev_mins[:, :, None] * triple0
-        maxs3d = prev_maxs[:, :, None] * triple0
-        mins = mins3d[letter1, letter2] * size / freq
-        maxs = maxs3d[letter1, letter2] * size / freq
-        if level - deep == 2:
-            assert np.allclose(mins, maxs), (word, size, 100 * mins, 100 * maxs)
-            assert np.allclose(vals, mins), (
-                word,
-                size,
-                100 * vals,
-                100 * mins,
-                vals / mins,
-                triple0[letter1, letter2],
-            )
-        result = vals, mins, maxs
-
-    return Tree(level, words, result[0], result[1], result[2])
-
-
-from dataclasses import dataclass
-
-from dataclasses import dataclass, field
-from typing import List
-
-
-@dataclass
-class Tree:
-    level: int
-    words: List[tuple] = field(default_factory=list)
-    sizes: List[float] = field(default_factory=list)
-    mins: List[float] = field(default_factory=list)
-    maxs: List[float] = field(default_factory=list)
-
-    def __post_init__(self):
-        if isinstance(self.sizes, np.ndarray):
-            self.sizes = self.sizes.tolist()
-        if isinstance(self.mins, np.ndarray):
-            self.mins = self.mins.tolist()
-        if isinstance(self.maxs, np.ndarray):
-            self.maxs = self.maxs.tolist()
-
-    def print_words(self):
-        for word, size, ccmin, ccmax in zip(
-            self.words, self.sizes, self.mins, self.maxs
-        ):
-            w = "".join([str(i) for i in word])
-            print(f"{w} size {100*size:.4f} min {100*ccmin:.4e} max {100*ccmax:.4f}")
-        print()
-
-    def _pop(self, index):
-        self.words.pop(index)
-        self.sizes.pop(index)
-        self.mins.pop(index)
-        self.maxs.pop(index)
-
-    def _append(self, tree: "Tree"):
-        self.words += tree.words
-        self.sizes += tree.sizes
-        self.mins += tree.mins
-        self.maxs += tree.maxs
-
-    def split(self, to_split):
-        split_word = self.words[to_split]
-        split_size = self.sizes[to_split]
-        new_tree = split(split_word, split_size, self.level)
-        assert abs(sum(new_tree.sizes) - split_size < 0.0001), (
-            split_word,
-            100 * sum(new_tree.sizes),
-            100 * split_size,
-        )
-        assert max(new_tree.maxs) == self.maxs[to_split], (
-            split_word,
-            [100 * v for v in new_tree.sizes],  # ==maxs
-            100 * max(new_tree.maxs),
-            100 * self.maxs[to_split],
-        )
-        assert min(new_tree.mins) == self.mins[to_split]
-        self._pop(to_split)
-        self._append(new_tree)
-
-    def sort_min(self):
-        inds = np.argsort(self.mins)
-        self.words[:] = [self.words[i] for i in inds]
-        self.sizes[:] = [self.sizes[i] for i in inds]
-        self.mins[:] = [self.mins[i] for i in inds]
-        self.maxs[:] = [self.maxs[i] for i in inds]
-
-    def cutoff(self, pos):
-        self.words[:] = self.words[pos:]
-        self.sizes[:] = self.sizes[pos:]
-        self.mins[:] = self.mins[pos:]
-        self.maxs[:] = self.maxs[pos:]
-
-
-THRESHOLD = 0.01  # keep 99 %
-
-
-def prune(level):
-    words = [(i,) for i in range(NCLASSES)]
-    mins0, maxs0 = levels[level]
-    mins = mins0.min(axis=1)
-    maxs = maxs0.max(axis=1)
-    tree = Tree(
-        level=level, words=words, sizes=class_vector_prime, mins=mins, maxs=maxs
+    print("Level", level)
+    print(
+        f"Pruned combinations: {pruned}/{len(log_matrix.reshape(-1))} {100*pruned/len(log_matrix.reshape(-1)):.1f} %"
     )
-    tree.print_words()
+    print(
+        "Fragment pruning (close to threshold)",
+        100 * np.exp(get_log_frac(log_matrix, mask)),
+    )
+    log_conf_frac = get_log_frac(log_conf_class_frac_nd, mask)
+    print(
+        f"Log conformation pruning {log_conf_frac:.5f}, per level {log_conf_frac/level:.5f}"
+    )
+    print(
+        f"Conformation pruning {np.exp(log_conf_frac):.5f}, per level {np.exp(log_conf_frac/level):.5f}"
+    )
+    print()
 
-    # We need a clean partition (no overlapping min/max)
-    #  between words to eliminate and words to keep
-    tree.sort_min()
-    tree.print_words()
+"""
+RESULTS: 
 
-    while 1:
-        discarded = 0
-        pos = 0
-        nwords = len(tree.words)
-        threshold_cmpl = sum(tree.sizes) - THRESHOLD
-        while 1:
-            discarded += tree.sizes[pos]
-            if discarded > THRESHOLD:
-                break
-            pos += 1
-        if pos == 0:
-            assert len(tree.words[pos]) < level, tree.words[pos]
-            to_split = pos
-        else:
-            highest_to_discard = pos - 1
-            assert (
-                sum([tree.sizes[p] for p in range(highest_to_discard + 1)]) <= THRESHOLD
-            )
-            lowest_to_keep = highest_to_discard + 1
-            assert sum([tree.sizes[p] for p in range(lowest_to_keep + 1)]) > THRESHOLD
-            threshold1 = max(tree.maxs[: highest_to_discard + 1])
-            threshold2 = tree.mins[lowest_to_keep]
-            print(
-                "Threshold1",
-                100 * threshold1,
-                tree.words[highest_to_discard],
-                "Threshold2",
-                100 * threshold2,
-                tree.words[lowest_to_keep],
-            )
-            print()
-            if threshold1 <= threshold2:
-                if tree.mins[lowest_to_keep] == tree.maxs[lowest_to_keep]:
-                    sum0 = sum(
-                        [tree.sizes[p] for p in range(lowest_to_keep + 1, nwords)]
-                    )
-                    sum1 = sum([tree.sizes[p] for p in range(lowest_to_keep, nwords)])
-                    assert sum0 < threshold_cmpl and sum1 >= threshold_cmpl, (
-                        sum0,
-                        sum(tree.sizes),
-                        threshold_cmpl,
-                        sum1,
-                    )
-                    final_threshold = tree.mins[lowest_to_keep]
-                    break
-                else:
-                    to_split = lowest_to_keep
-            else:
-                to_split = np.argmax(tree.maxs[: highest_to_discard + 1])
-        tree.split(to_split)
-        print()
-        tree.sort_min()
-        tree.print_words()
-        print()
+Threshold = 1 %  (of the TOTAL, not per level!)
 
-    tree.sort_min()
-    siz = 0
-    for n in range(len(tree.words)):
-        siz += tree.sizes[n]
-        if siz > THRESHOLD:
-            break
-    else:
-        raise AssertionError
-    tree.cutoff(n)
-    tree.print_words()
-    assert sum(tree.sizes) > threshold_cmpl
-    assert sum(tree.sizes[:-1]) < threshold_cmpl
-    assert min(tree.mins) == min(tree.maxs) == final_threshold
+level 7-8: reduce 10 % (keep 90 %) per level
+level 10-11: reduce 16 % per level
+level 12: reduce 19 % per level  (92 % in total)
+Underwhelming
 
-    # Brute force validation
-    accum = 0
-    wordset = set(tree.words)
+Threshold = 5 %
+level 5-10: reduce 35 %  per level
+level 11-12: reduce 45 % per level, log(reduction)=-7.5 for level=12
 
-    def recurse(word, size, remaining_level):
-        nonlocal accum
-        if remaining_level == 0:
-            for lev in range(1, level + 1):
-                w = word[:lev]
-                if w in wordset:
-                    assert size >= final_threshold, (
-                        word,
-                        100 * size,
-                        100 * final_threshold,
-                    )
-                    accum += size
-                    break
-            else:
-                assert size < final_threshold, (word, 100 * size, 100 * final_threshold)
-            return
-        for cl in range(NCLASSES):
-            new_word = word + (cl,)
-            if len(word) == 0:
-                new_size = class_vector_prime[cl]
-            elif len(word) == 1:
-                new_size = class_matrix[word[0], cl]
-            else:
-                partition = triple0[word[0], word[1]]
-                assert np.isclose(partition.sum(), 1)
-                new_size = size * partition[cl]
-            recurse(new_word, new_size, remaining_level - 1)
-
-    recurse((), 1, level)
-    assert abs(accum - sum(tree.sizes)) < 0.001, (accum, sum(tree.sizes))
-    # / validation
+Threshold = 10 %
+Level 10: reduce 60 % per level
+Level 11-12: reduce 65 % per level, log(reduction)=-13 for level=12
 
 
-print("*" * 70)
-print("Level 3")
-prune(3)
-print("Level 4")
-prune(4)
+"""
